@@ -172,7 +172,7 @@ export class OverlayController {
       target,
       async () => {
         await locator.hover();
-        return getLocatorCenter(locator);
+        return getLocatorCenterBestEffort(locator);
       },
       {
         label: label ?? DEFAULT_ACTION_LABELS.hover,
