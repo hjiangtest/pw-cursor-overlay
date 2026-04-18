@@ -1,15 +1,16 @@
 import { defineConfig } from "@playwright/test";
+import { overlayConfig } from "./src/config";
 
-// Subsequent PRs wrap this with `overlayConfig()` from src/config once that
-// module lands.
-export default defineConfig({
-  testDir: "./tests",
-  fullyParallel: false,
-  retries: 0,
-  projects: [
-    {
-      name: "chromium",
-      use: { browserName: "chromium" },
-    },
-  ],
-});
+export default overlayConfig(
+  defineConfig({
+    testDir: "./tests",
+    fullyParallel: false,
+    retries: 0,
+    projects: [
+      {
+        name: "chromium",
+        use: { browserName: "chromium" },
+      },
+    ],
+  }),
+);
