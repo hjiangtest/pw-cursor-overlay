@@ -44,46 +44,50 @@ export async function setCursorOverlayPosition(
 ): Promise<void> {
   if (!OVERLAY_ENABLED) return;
 
-  await page.evaluate(
-    ({
-      cursorId,
-      labelId,
-      px,
-      py,
-      cursorTransition,
-      labelTransition,
-    }: {
-      cursorId: string;
-      labelId: string;
-      px: number;
-      py: number;
-      cursorTransition: string;
-      labelTransition: string;
-    }) => {
-      const cursor = document.getElementById(cursorId);
-      if (cursor instanceof HTMLElement) {
-        cursor.style.display = "block";
-        cursor.style.transition = cursorTransition;
-        cursor.style.left = `${px}px`;
-        cursor.style.top = `${py}px`;
-      }
+  await page
+    .evaluate(
+      ({
+        cursorId,
+        labelId,
+        px,
+        py,
+        cursorTransition,
+        labelTransition,
+      }: {
+        cursorId: string;
+        labelId: string;
+        px: number;
+        py: number;
+        cursorTransition: string;
+        labelTransition: string;
+      }) => {
+        const cursor = document.getElementById(cursorId);
+        if (cursor instanceof HTMLElement) {
+          cursor.style.display = "block";
+          cursor.style.transition = cursorTransition;
+          cursor.style.left = `${px}px`;
+          cursor.style.top = `${py}px`;
+        }
 
-      const label = document.getElementById(labelId);
-      if (label instanceof HTMLElement) {
-        label.style.transition = labelTransition;
-        label.style.left = `${px}px`;
-        label.style.top = `${py}px`;
-      }
-    },
-    {
-      cursorId: CURSOR_ELEMENT_ID,
-      labelId: LABEL_ELEMENT_ID,
-      px: position.x,
-      py: position.y,
-      cursorTransition: getCursorTransition(transitionMs),
-      labelTransition: getLabelTransition(transitionMs),
-    },
-  );
+        const label = document.getElementById(labelId);
+        if (label instanceof HTMLElement) {
+          label.style.transition = labelTransition;
+          label.style.left = `${px}px`;
+          label.style.top = `${py}px`;
+        }
+      },
+      {
+        cursorId: CURSOR_ELEMENT_ID,
+        labelId: LABEL_ELEMENT_ID,
+        px: position.x,
+        py: position.y,
+        cursorTransition: getCursorTransition(transitionMs),
+        labelTransition: getLabelTransition(transitionMs),
+      },
+    )
+    .catch((err: Error) => {
+      rethrowUnexpectedEvaluateError(err);
+    });
 
   rememberOverlayPosition(page, position);
 }
@@ -125,84 +129,90 @@ export async function animateCursorOverlay(
 ): Promise<void> {
   if (!OVERLAY_ENABLED) return;
 
-  await page.evaluate(
-    ({
-      cursorId,
-      labelId,
-      startX,
-      startY,
-      targetX,
-      targetY,
-      zeroCursorTransition,
-      zeroLabelTransition,
-      cursorTransition,
-      labelTransition,
-      moveDurationMs,
-    }: {
-      cursorId: string;
-      labelId: string;
-      startX: number;
-      startY: number;
-      targetX: number;
-      targetY: number;
-      zeroCursorTransition: string;
-      zeroLabelTransition: string;
-      cursorTransition: string;
-      labelTransition: string;
-      moveDurationMs: number;
-    }) => {
-      const cursor = document.getElementById(cursorId);
-      if (cursor instanceof HTMLElement) {
-        cursor.style.display = "block";
-        cursor.style.transition = zeroCursorTransition;
-        cursor.style.left = `${startX}px`;
-        cursor.style.top = `${startY}px`;
-      }
+  await page
+    .evaluate(
+      ({
+        cursorId,
+        labelId,
+        startX,
+        startY,
+        targetX,
+        targetY,
+        zeroCursorTransition,
+        zeroLabelTransition,
+        cursorTransition,
+        labelTransition,
+        moveDurationMs,
+      }: {
+        cursorId: string;
+        labelId: string;
+        startX: number;
+        startY: number;
+        targetX: number;
+        targetY: number;
+        zeroCursorTransition: string;
+        zeroLabelTransition: string;
+        cursorTransition: string;
+        labelTransition: string;
+        moveDurationMs: number;
+      }) => {
+        const cursor = document.getElementById(cursorId);
+        if (cursor instanceof HTMLElement) {
+          cursor.style.display = "block";
+          cursor.style.transition = zeroCursorTransition;
+          cursor.style.left = `${startX}px`;
+          cursor.style.top = `${startY}px`;
+        }
 
-      const label = document.getElementById(labelId);
-      if (label instanceof HTMLElement) {
-        label.style.transition = zeroLabelTransition;
-        label.style.left = `${startX}px`;
-        label.style.top = `${startY}px`;
-      }
+        const label = document.getElementById(labelId);
+        if (label instanceof HTMLElement) {
+          label.style.transition = zeroLabelTransition;
+          label.style.left = `${startX}px`;
+          label.style.top = `${startY}px`;
+        }
 
-      // Force a reflow so the subsequent transition kicks in from `start`
-      // rather than being folded into the snap above.
-      void document.documentElement.offsetWidth;
+        // Force a reflow so the subsequent transition kicks in from `start`
+        // rather than being folded into the snap above.
+        void document.documentElement.offsetWidth;
 
-      if (cursor instanceof HTMLElement) {
-        cursor.style.transition = cursorTransition;
-        cursor.style.left = `${targetX}px`;
-        cursor.style.top = `${targetY}px`;
-      }
+        if (cursor instanceof HTMLElement) {
+          cursor.style.transition = cursorTransition;
+          cursor.style.left = `${targetX}px`;
+          cursor.style.top = `${targetY}px`;
+        }
 
-      if (label instanceof HTMLElement) {
-        label.style.transition = labelTransition;
-        label.style.left = `${targetX}px`;
-        label.style.top = `${targetY}px`;
-      }
+        if (label instanceof HTMLElement) {
+          label.style.transition = labelTransition;
+          label.style.left = `${targetX}px`;
+          label.style.top = `${targetY}px`;
+        }
 
-      const windowWithOverlay = window as Window & {
-        __pwCursorOverlayApi?: {
-          startTrailMotion?: (durationMs: number) => void;
+        const windowWithOverlay = window as Window & {
+          __pwCursorOverlayApi?: {
+            startTrailMotion?: (durationMs: number) => void;
+          };
         };
-      };
-      windowWithOverlay.__pwCursorOverlayApi?.startTrailMotion?.(moveDurationMs);
-    },
-    {
-      cursorId: CURSOR_ELEMENT_ID,
-      labelId: LABEL_ELEMENT_ID,
-      startX: start.x,
-      startY: start.y,
-      targetX: target.x,
-      targetY: target.y,
-      zeroCursorTransition: getCursorTransition(0),
-      zeroLabelTransition: getLabelTransition(0),
-      cursorTransition: getCursorTransition(OVERLAY_MOVE_MS),
-      labelTransition: getLabelTransition(OVERLAY_MOVE_MS),
-      moveDurationMs: OVERLAY_MOVE_MS,
-    },
-  );
+        windowWithOverlay.__pwCursorOverlayApi?.startTrailMotion?.(
+          moveDurationMs,
+        );
+      },
+      {
+        cursorId: CURSOR_ELEMENT_ID,
+        labelId: LABEL_ELEMENT_ID,
+        startX: start.x,
+        startY: start.y,
+        targetX: target.x,
+        targetY: target.y,
+        zeroCursorTransition: getCursorTransition(0),
+        zeroLabelTransition: getLabelTransition(0),
+        cursorTransition: getCursorTransition(OVERLAY_MOVE_MS),
+        labelTransition: getLabelTransition(OVERLAY_MOVE_MS),
+        moveDurationMs: OVERLAY_MOVE_MS,
+      },
+    )
+    .catch((err: Error) => {
+      rethrowUnexpectedEvaluateError(err);
+    });
 
   rememberOverlayPosition(page, target);
 }
