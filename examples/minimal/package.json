@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",
-    "pw-cursor-overlay": "^0.1.0-alpha.0"
+    "pw-cursor-overlay": "^0.1.0"
   },
   "engines": {
     "node": ">=18.17.0"
