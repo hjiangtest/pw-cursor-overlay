@@ -66,6 +66,7 @@ export async function installOverlayObserver(page: Page): Promise<void> {
         cursorAttached: boolean;
         labelAttached: boolean;
         trailAttached: boolean;
+        rippleAttached: boolean;
         positions: OverlayPosition[];
         trailSnapshots: TrailSnapshot[];
         labelSnapshots: LabelSnapshot[];
@@ -77,6 +78,7 @@ export async function installOverlayObserver(page: Page): Promise<void> {
       cursorAttached: false,
       labelAttached: false,
       trailAttached: false,
+      rippleAttached: false,
       positions: [],
       trailSnapshots: [],
       labelSnapshots: [],
@@ -199,20 +201,23 @@ export async function installOverlayObserver(page: Page): Promise<void> {
       });
     }
 
-    new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          findRippleElements(node).forEach((ripple) =>
-            recordRipple("added", ripple),
-          );
+    if (!state.rippleAttached) {
+      state.rippleAttached = true;
+      new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((node) => {
+            findRippleElements(node).forEach((ripple) =>
+              recordRipple("added", ripple),
+            );
+          });
+          mutation.removedNodes.forEach((node) => {
+            findRippleElements(node).forEach((ripple) =>
+              recordRipple("removed", ripple),
+            );
+          });
         });
-        mutation.removedNodes.forEach((node) => {
-          findRippleElements(node).forEach((ripple) =>
-            recordRipple("removed", ripple),
-          );
-        });
-      });
-    }).observe(document.documentElement, { childList: true, subtree: true });
+      }).observe(document.documentElement, { childList: true, subtree: true });
+    }
   });
 }
 
