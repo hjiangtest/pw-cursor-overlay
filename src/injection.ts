@@ -368,6 +368,8 @@ export async function hasInjectedCursorElements(page: Page): Promise<boolean> {
 // Ensures the overlay is present even if injectCursorOverlay was skipped.
 // Controller actions call this defensively before every interaction.
 export async function ensureInjected(page: Page): Promise<void> {
+  if (!OVERLAY_ENABLED) return;
+
   const needsInjection =
     !injectedPages.has(page) || !(await hasInjectedCursorElements(page));
 
