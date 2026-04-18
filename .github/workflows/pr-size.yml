@@ -1,0 +1,86 @@
+name: PR size check
+
+# Enforces a soft cap on how much code changes in a single pull request, so
+# reviews stay manageable. Auto-generated / non-code artifacts are excluded
+# from the line count.
+#
+# Excluded paths / patterns:
+#   - lockfiles: package-lock.json, yarn.lock, pnpm-lock.yaml
+#   - *.log
+#   - dist/**
+#   - node_modules/**
+#   - test-results/**
+#   - playwright-report/**
+#
+# Limit: 1000 added+removed lines (excluding the above).
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  size:
+    runs-on: ubuntu-latest
+    env:
+      MAX_LINES: "1000"
+    steps:
+      - name: Check out PR head with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Fetch PR base
+        run: |
+          git fetch --no-tags --prune origin "+refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}"
+
+      - name: Count changed lines (excluding generated / artifact paths)
+        run: |
+          set -euo pipefail
+
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+
+          # Pathspec excludes. Note the :(exclude, glob) syntax — this is git's
+          # native pathspec magic, evaluated per-path.
+          EXCLUDES=(
+            ":(exclude,glob)package-lock.json"
+            ":(exclude,glob)**/package-lock.json"
+            ":(exclude,glob)yarn.lock"
+            ":(exclude,glob)**/yarn.lock"
+            ":(exclude,glob)pnpm-lock.yaml"
+            ":(exclude,glob)**/pnpm-lock.yaml"
+            ":(exclude,glob)*.log"
+            ":(exclude,glob)**/*.log"
+            ":(exclude,glob)dist/**"
+            ":(exclude,glob)**/dist/**"
+            ":(exclude,glob)node_modules/**"
+            ":(exclude,glob)**/node_modules/**"
+            ":(exclude,glob)test-results/**"
+            ":(exclude,glob)**/test-results/**"
+            ":(exclude,glob)playwright-report/**"
+            ":(exclude,glob)**/playwright-report/**"
+          )
+
+          # --numstat prints "<added>\t<removed>\t<path>" per file. Binary
+          # files show "-\t-\t<path>" and contribute 0 to the count.
+          TOTAL=$(git diff --numstat "$BASE" "$HEAD" -- . "${EXCLUDES[@]}" \
+            | awk '$1 != "-" && $2 != "-" { added += $1; removed += $2 } END { print (added + removed) + 0 }')
+
+          echo "Changed lines (excluding generated / artifacts): $TOTAL"
+          echo "Limit: $MAX_LINES"
+
+          echo "### PR size check" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**$TOTAL** added+removed lines (excluding lockfiles, logs, dist, node_modules, test-results, playwright-report)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Limit: $MAX_LINES" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$TOTAL" -gt "$MAX_LINES" ]; then
+            echo "::error::PR changes $TOTAL lines, which exceeds the $MAX_LINES-line limit. Please split it into smaller PRs."
+            exit 1
+          fi
