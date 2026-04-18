@@ -1,0 +1,19 @@
+{
+  "name": "pw-cursor-overlay-example-minimal",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Minimal OverlayController demo — single spec, no dev server.",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:debug": "PW_LIVE_DEBUG=1 playwright test --headed",
+    "test:trace": "PW_TRACE=1 playwright test --trace on"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "pw-cursor-overlay": "^0.1.0-alpha.0"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}
