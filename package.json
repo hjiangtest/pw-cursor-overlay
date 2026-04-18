@@ -1,0 +1,68 @@
+{
+  "name": "pw-cursor-overlay",
+  "version": "0.1.0-alpha.0",
+  "description": "Visible cursor / trail / ripple overlay for Playwright — zero-cost in CI, agent-friendly in local debug.",
+  "keywords": [
+    "playwright",
+    "e2e",
+    "debug",
+    "cursor",
+    "overlay",
+    "agent",
+    "recording",
+    "trace"
+  ],
+  "author": "Huanhuan Jiang",
+  "license": "MIT",
+  "homepage": "https://github.com/hjiangtest/pw-cursor-overlay#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hjiangtest/pw-cursor-overlay.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hjiangtest/pw-cursor-overlay/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "test": "playwright test",
+    "test:debug": "PW_LIVE_DEBUG=1 playwright test",
+    "prepublishOnly": "npm run typecheck && npm run lint && npm run build"
+  },
+  "peerDependencies": {
+    "@playwright/test": ">=1.40.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^20.14.0",
+    "eslint": "^9.13.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.10.0"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
