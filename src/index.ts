@@ -3,6 +3,7 @@
 
 export { overlayConfig } from "./config";
 export { injectCursorOverlay } from "./injection";
+export { moveCursorOverlay } from "./animation";
 export type {
   CursorPosition,
   OverlayActionOptions,
