@@ -2,6 +2,7 @@
 // compat helpers) lands in PRs 3 – 5.
 
 export { overlayConfig } from "./config";
+export { injectCursorOverlay } from "./injection";
 export type {
   CursorPosition,
   OverlayActionOptions,
