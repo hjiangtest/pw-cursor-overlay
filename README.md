@@ -78,7 +78,7 @@ exactly like the equivalent plain-Playwright version.
 
 `overlayConfig(userConfig)` returns a `defineConfig(...)` with the
 overlay-friendly defaults pre-applied (trace artefacts tuned for debug
-runs, video `retain-on-failure` when `PW_LIVE_DEBUG=1`, `headed: true` in
+runs, video `on` when `PW_LIVE_DEBUG=1`, `headed: true` in
 live-debug mode). Use it from `playwright.config.ts`:
 
 ```ts
